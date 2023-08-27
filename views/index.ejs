@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CodePen - Subscribe Form</title>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- partial:index.partial.html -->
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.9.0/css/all.css"
+      integrity="sha384-i1LQnF23gykqWXg6jxC2ZbCbUMxyw5gLZY6UiUS98LYV5unm8GWmfkIS6jqJfb4E"
+      crossorigin="anonymous"
+    />
+
+    <div class="wrapper">
+      <form class="card-content">
+        <div class="container">
+          <div class="image">
+            <img src="" alt="" id="qr-img" />
+          </div>
+          <h1>QR Generator</h1>
+          <p>Welcome to our QR Generator website!</p>
+        </div>
+        <div class="form-input">
+          <label for="text"></label>
+          <input type="text" placeholder="Enter URL" id="urlData" />
+          <button class="subscribe-btn" onclick="submitForm(); return false">
+            Genarate QR
+          </button>
+        </div>
+
+        <div
+          class="form-input"
+          style="margin-top: 25px; display: none"
+          id="sendEmailDiv"
+        >
+          <label for="text"></label>
+          <input type="email" placeholder="Your Email" id="emailData" />
+          <button class="subscribe-btn" onclick="sendEmail(); return false">
+            Send Email
+          </button>
+        </div>
+      </form>
+    </div>
+    <!-- partial -->
+  </body>
+
+  <script>
+    let qrImageData = "";
+    const submitForm = async () => {
+      try {
+        const urlData = document.getElementById("urlData").value;
+        if (!urlData) {
+          alert("No URL");
+        } else {
+          const response = await fetch("api/v1/qr", {
+            method: "POST",
+            body: JSON.stringify({
+              url: urlData,
+            }),
+            headers: {
+              "Content-type": "application/json",
+            },
+          });
+          const result = await response.json();
+          const imgSrc = result.data;
+          qrImageData = imgSrc;
+          const qrImgElement = document.getElementById("qr-img"); // Assuming you have an <img> tag with id="qr-img"
+          qrImgElement.src = imgSrc;
+          document.getElementById("sendEmailDiv").style.display = "block";
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    const sendEmail = async () => {
+      try {
+        const emailData = document.getElementById("emailData").value;
+        if (!emailData) {
+          alert("No URL");
+        } else {
+          const response = await fetch("api/v1/mailer", {
+            method: "POST",
+            body: JSON.stringify({
+              to: emailData,
+              QRCode: qrImageData,
+            }),
+            headers: {
+              "Content-type": "application/json",
+            },
+          });
+          const result = await response.json();
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+  </script>
+</html>
